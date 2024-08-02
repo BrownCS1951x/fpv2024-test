@@ -4,7 +4,7 @@ defaultTargets = ["LoVe"]
 [leanOptions]
 autoImplicit = false
 linter.unusedVariables = false 
-linter.unusedTactic = false
+# linter.unusedTactic = false
 
 [[require]]
 name = "mathlib"

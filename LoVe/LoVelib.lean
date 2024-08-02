@@ -4,7 +4,6 @@ Johannes Hölzl, and Jannis Limperg. See `LICENSE.txt`. -/
 import Aesop
 import Mathlib.Algebra.Field.Defs
 import Mathlib.Data.Finset.Basic
-import Mathlib.Tactic.LibrarySearch
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 
@@ -122,7 +121,7 @@ theorem Nat.two_mul (n : ℕ) :
     | ofNat n =>
       { simp [Int.neg]
         cases n
-        { simp }
+        { rfl }
         { simp [Int.negOfNat] } }
     | negSucc n =>
       { simp [Int.neg]
@@ -163,30 +162,28 @@ attribute [simp] Int.mul_eq_zero
   List.count x [] = 0 :=
   by rfl
 
-theorem List.countp.go_accum {α : Type} (p : α → Bool) (as : List α) (acc : ℕ) :
-  List.countp.go p as acc = List.countp p as + acc :=
-  by
-    induction as generalizing acc with
-    | nil           => simp [List.countp.go, List.countp]
-    | cons a as' ih =>
-      simp [List.countp, List.countp.go]
-      cases Classical.em (p a) with
-      | inl hp =>
-        simp [hp, ih]
-        ac_rfl
-      | inr hp => simp [hp, ih]
+-- theorem List.countp.go_accum {α : Type} (p : α → Bool) (as : List α) (acc : ℕ) :
+--   List.countp.go p as acc = List.countp p as + acc :=
+--   by
+--     induction as generalizing acc with
+--     | nil           => simp [List.countp.go, List.countp]
+--     | cons a as' ih =>
+--       simp [List.countp, List.countp.go]
+--       cases Classical.em (p a) with
+--       | inl hp =>
+--         simp [hp, ih]
+--         ac_rfl
+--       | inr hp => simp [hp, ih]
 
 @[simp] theorem List.count_cons {α : Type} [BEq α] (x a : α) (as : List α) :
   List.count x (a :: as) = (bif a == x then 1 else 0) + List.count x as :=
   by
     cases Classical.em (a == x) with
     | inl hx =>
-      rw [List.count, List.countp, List.countp.go, List.countp.go_accum]
-      simp [hx]
+      simp [hx, List.count]
       ac_rfl
     | inr hx =>
-      rw [List.count, List.countp, List.countp.go, List.countp]
-      simp [hx]
+      simp [hx, List.count]
 
 @[simp] theorem List.count_append {α : Type} [BEq α] (x : α) (as bs : List α) :
   List.count x (as ++ bs) = List.count x as + List.count x bs :=
@@ -240,7 +237,6 @@ theorem Set.unordered_pair_comm {α : Type} (a b : α) :
   ({a, b} : Set α) = ({b, a} : Set α) :=
   by
     apply Set.ext
-    simp [insert, singleton, Set.insert, Set.singleton]
     aesop
 
 instance Set.PartialOrder {α : Type} : PartialOrder (Set α) :=
