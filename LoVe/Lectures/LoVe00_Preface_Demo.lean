@@ -1,4 +1,5 @@
-import Mathlib.Data.Nat.Prime
+import Mathlib.Data.Nat.Prime.Basic
+import Mathlib.Data.Nat.Factorial.Basic
 import Mathlib.Tactic.Linarith
 
 /-! # LoVe Preface
@@ -63,14 +64,14 @@ Strengths:
 
 ### Web Site
 
-    https://BrownCS1951x.github.io 
+    https://BrownCS1951x.github.io
 
 
 ### Repository (Demos, Exercises, Homework)
 
     https://github.com/BrownCS1951x/fpv2023
 
-The file you are currently looking at is a demo. 
+The file you are currently looking at is a demo.
 For each chapter of the Hitchhiker's Guide, there will be approximately
 one demo, one exercise sheet, and one homework.
 
@@ -110,23 +111,23 @@ Lean is our vehicle, not an end in itself.
 
 -/
 
-open Nat 
+open Nat
 
 -- here's a proof that there are infinitely many primes, as a mathematical theorem
 
-theorem infinitude_of_primes : ∀ N, ∃ p ≥ N, Nat.Prime p := by 
+theorem infinitude_of_primes : ∀ N, ∃ p ≥ N, Nat.Prime p := by
 
-  intro M 
+  intro M
   let F := M ! + 1
-  let q := minFac F 
-  use q 
+  let q := minFac F
+  use q
 
-  have qPrime : Nat.Prime q 
-  { refine' minFac_prime _
-    have hn : M ! > 0 := factorial_pos M 
-    linarith }
+  have qPrime : Nat.Prime q := by
+    refine minFac_prime ?_
+    have hn : M ! > 0 := factorial_pos M
+    linarith
 
-  apply And.intro 
+  apply And.intro
 
   { by_contra hqM
     have h1 : q ∣ M ! + 1 := minFac_dvd F
@@ -146,14 +147,14 @@ def biggerPrime (M : ℕ) : ℕ := Nat.minFac (M ! + 1)
 
 #eval biggerPrime 7
 
-theorem biggerPrimeIsPrime : ∀ N, Nat.Prime (biggerPrime N) := by 
+theorem biggerPrimeIsPrime : ∀ N, Nat.Prime (biggerPrime N) := by
   intro M
-  refine' minFac_prime _
-  have hn : M ! > 0 := factorial_pos M 
-  linarith 
+  refine minFac_prime ?_
+  have hn : M ! > 0 := factorial_pos M
+  linarith
   done
 
-theorem biggerPrimeIsBigger : ∀ N, biggerPrime N ≥ N := by 
+theorem biggerPrimeIsBigger : ∀ N, biggerPrime N ≥ N := by
   intro M
   by_contra hqM
   have h1 : (biggerPrime M) ∣ M ! + 1 := minFac_dvd _
@@ -166,12 +167,10 @@ theorem biggerPrimeIsBigger : ∀ N, biggerPrime N ≥ N := by
 
 
 -- we can use our verified program to prove our original theorem
-theorem infinitude_of_primes2 : ∀ N, ∃ p ≥ N, Nat.Prime p := by 
-  intro N 
-  use biggerPrime N 
-  apply And.intro 
+theorem infinitude_of_primes2 : ∀ N, ∃ p ≥ N, Nat.Prime p := by
+  intro N
+  use biggerPrime N
+  apply And.intro
   { exact biggerPrimeIsBigger _ }
   { exact biggerPrimeIsPrime _ }
-  done 
-
-
+  done

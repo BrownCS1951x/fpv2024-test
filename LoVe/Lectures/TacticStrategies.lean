@@ -14,10 +14,13 @@ we can turn proofs about syntax-like operations into actual proof terms.
 The general strategy looks like this:
 * represent the syntax of some class of formulas in (non-meta) Lean
 * define an interpretation function from these formulas to Prop
-* define some operation on this syntax, and prove it correct with respect to the interpretation
-* write a small bit of meta code that turns a goal into a statement about your reflected syntax
+* define some operation on this syntax, and prove it correct with respect to the
+  interpretation
+* write a small bit of meta code that turns a goal into a statement about your
+  reflected syntax
 
-The idea is that the goal left after applying your correctness theorem can be proved by computation.
+The idea is that the goal left after applying your correctness theorem can be proved
+  by computation.
 
 This is commonly used for evaluation or normalization functions.
 `ring`, for example, can be implemented by defining the syntax of ring expressions
@@ -32,6 +35,10 @@ The meta code looks at a goal `c + a*b = b*a + c`,
 constructs `ring_syntax` objects `r1` and `r2` representing both sides,
 and changes the goal to showing that `normalize r1 = normalize r2`.
 This can be proved by `refl`.
+
+or (atom true) (atom false) = atom true
+
+True ∨ False = True
 
 -/
 
@@ -108,8 +115,12 @@ def changeGoal : TacticM Unit := withMainContext <| do
 
 elab "change_goal" : tactic => changeGoal
 
-
+-- normalize (or (imp (atom true) (atom true)) (atom false)) = true
 example : (True → True) ∨ False := by
+  change_goal
+  rfl
+
+example (p : Prop) : (p → p) ∨ False := by
   change_goal
   rfl
 
@@ -197,7 +208,7 @@ What are our options here?
 
 ### Proof by reflection
 
-We talked about proof by reflection on Monday.
+We talked about proof by reflection earlier today.
 To do this, we'd have to represent the syntax of linear expressions as a datatype,
 define our decision procedure in Lean,
 and prove that it's correct with respect to an interpretation function.
@@ -234,7 +245,7 @@ Suppose we had an oracle that produced a list of nonnegative coefficients
 c₁ ... cₖ such that
 * c₁ * (a₁¹x₁ + a₂¹x₂ + ... + aₙ¹xₙ) + c₂ * (a₁²x₁ + a₂²x₂ + ... + aₙ²xₙ)
   + ... + cₖ * (a₁ᵏx₁ + a₂ᵏx₂ + ... + aₙᵏxₙ) = 0
-* For at least one i, cᵢ > 0 and ⋈ⁱ is =.
+* For at least one i, cᵢ > 0 and ⋈ⁱ is <.
 
 We could then prove false by summing together the scaled linear expressions;
 this sum must be both equal to and less than 0.
@@ -331,7 +342,7 @@ Turns out: these problems are also decidable!
 
 (Old result by Tarski; modern algorithms like cylindrical algebraic decomposition)
 
-But algorithms are very slow, and/or hard to produce proofs.
+But algorithms are very slow, and hard to produce proofs.
 
 Hard to separate *proof search* from the ultimate proof:
 the justification is that the entire search was carried out correctly.
@@ -341,5 +352,5 @@ the justification is that the entire search was carried out correctly.
 But for tactic implementations, we don't necessarily need decision procedures.
 -/
 
-example (x y : ℚ) : 0 ≤ x*x + y*y :=
+example (x y : ℚ) : 0 ≤ x*x*x*x + y*y*y*y :=
 by nlinarith
